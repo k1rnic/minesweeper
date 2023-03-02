@@ -1,4 +1,4 @@
-import { BombCounter } from '@/entities/bomb';
+import { BombCounter } from '@/entities/board';
 import { GameStatusButton } from '@/entities/game';
 import { Timer } from '@/entities/timer';
 import { Box } from '@/shared/ui/box';
