@@ -13,15 +13,14 @@ const $timer = createStore<{
 })
   .on(start, (state) => {
     if (state.intervalId) {
-      return state;
+      clearInterval(state.intervalId);
     }
     return { elapsed: 0, intervalId: setInterval(tick, 1000) };
   })
   .on(stop, (state) => {
-    if (!state.intervalId) {
-      return state;
+    if (state.intervalId) {
+      clearInterval(state.intervalId);
     }
-    clearInterval(state.intervalId);
     return { ...state, intervalId: null };
   })
   .on(tick, (state) => ({ ...state, elapsed: state.elapsed + 1 }));

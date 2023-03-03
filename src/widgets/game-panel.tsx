@@ -1,7 +1,10 @@
 import { BombCounter } from '@/entities/board';
-import { GameStatusButton } from '@/entities/game';
+import { GameStateButton } from '@/entities/game';
 import { Timer } from '@/entities/timer';
+import { withStartGameByClick } from '@/features/start-game';
 import { Box } from '@/shared/ui/box';
+
+const GameController = withStartGameByClick(GameStateButton);
 
 export const GamePanel = () => (
   <Box
@@ -12,7 +15,7 @@ export const GamePanel = () => (
     justifyContent="space-between"
   >
     <BombCounter />
-    <GameStatusButton />
+    <GameController />
     <Timer />
   </Box>
 );

@@ -1,1 +1,1 @@
-export * from './game-status-button';
+export * from './game-state-button';
