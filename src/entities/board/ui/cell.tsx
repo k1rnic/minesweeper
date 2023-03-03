@@ -2,6 +2,16 @@ import { Sprite, useSprite } from '@/shared/ui/sprite';
 import { memo, MouseEventHandler, useMemo } from 'react';
 import { CellStates, CellValues, clickCell, ICell, pressCell } from '../model';
 
+enum CellSpritePositions {
+  Hidden = 1,
+  Empty = 2,
+  Flagged = 3,
+  Unknown = 4,
+  Bomb = 6,
+  Detonated = 7,
+  Defused = 8,
+}
+
 export type CellProps = ICell & PrefixProps<JSX.IntrinsicElements['div'], 'on'>;
 
 export const Cell = memo(
@@ -14,35 +24,33 @@ export const Cell = memo(
     onClick,
     ...spriteProps
   }: CellProps) => {
-    const spriteRow =
-      state === CellStates.Revealed && value === CellValues.BombsAround ? 4 : 3;
+    const spriteLine =
+      state === CellStates.Revealed && neighboringBombs ? 4 : 3;
 
-    const spriteCol = useMemo(() => {
-      if (state === CellStates.Hidden) {
-        return 1;
-      }
-
-      switch (value) {
-        case CellValues.Empty:
-          return 2;
-        case CellValues.MarkedAsBomb:
-          return 3;
-        case CellValues.Unknown:
-          return 4;
-        case CellValues.UnknownPressed:
-          return 5;
-        case CellValues.Bomb:
-          return 6;
-        case CellValues.Detonated:
-          return 7;
-        case CellValues.Defused:
-          return 8;
-        case CellValues.BombsAround:
-          return neighboringBombs;
+    const spritePosition = useMemo(() => {
+      switch (state) {
+        case CellStates.Revealed: {
+          if (neighboringBombs) {
+            return neighboringBombs;
+          }
+          return value === CellValues.Empty
+            ? CellSpritePositions.Empty
+            : CellSpritePositions.Bomb;
+        }
+        case CellStates.Hidden:
+          return CellSpritePositions.Hidden;
+        case CellStates.Flagged:
+          return CellSpritePositions.Flagged;
+        case CellStates.Unknown:
+          return CellSpritePositions.Unknown;
+        case CellStates.Detonated:
+          return CellSpritePositions.Detonated;
+        case CellStates.Defused:
+          return CellSpritePositions.Defused;
       }
     }, [state, value, neighboringBombs]);
 
-    const sprite = useSprite(spriteRow, spriteCol);
+    const sprite = useSprite(spriteLine, spritePosition);
 
     const getCellInfo = () => ({ row, col, value, state, neighboringBombs });
 

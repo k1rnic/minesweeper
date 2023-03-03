@@ -9,16 +9,13 @@ export interface ICell {
 export enum CellStates {
   Hidden,
   Revealed,
-  Pressed,
+  Flagged,
+  Unknown,
+  Detonated,
+  Defused,
 }
 
 export enum CellValues {
   Empty,
-  BombsAround,
-  MarkedAsBomb,
-  Unknown,
-  UnknownPressed,
   Bomb,
-  Detonated,
-  Defused,
 }

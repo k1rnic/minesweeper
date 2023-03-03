@@ -1,6 +1,3 @@
 import { ICell } from './cell';
 
-export interface IBoardLine {
-  index: number;
-  cells: ICell[];
-}
+export type IBoardLine = ICell[];

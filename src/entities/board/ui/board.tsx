@@ -8,8 +8,8 @@ export const Board = () => {
 
   return (
     <Box display="flex" flexDirection="column">
-      {board.map(({ index, cells }) => (
-        <BoardLine key={index} index={index} cells={cells} />
+      {board.map((cells, idx) => (
+        <BoardLine key={idx} cells={cells} />
       ))}
     </Box>
   );

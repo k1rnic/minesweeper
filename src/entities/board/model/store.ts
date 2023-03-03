@@ -17,7 +17,7 @@ const $board = createStore<IBoard>([])
   .on(updateCell, (state, cell) =>
     state.map((line, idx) => {
       if (idx === cell.row) {
-        line.cells[cell.col] = cell;
+        line[cell.col] = cell;
         return structuredClone(line);
       }
       return line;

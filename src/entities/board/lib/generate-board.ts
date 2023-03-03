@@ -1,9 +1,8 @@
 import { CellStates, CellValues, IBoard, ICell } from '../model/types';
 
 export const generateBoard = (size: number): IBoard => {
-  const board = Array.from({ length: size }, (_, rowIdx) => ({
-    index: rowIdx,
-    cells: Array.from(
+  const board = Array.from({ length: size }, (_, rowIdx) =>
+    Array.from(
       { length: size },
       (_, colIdx): ICell => ({
         row: rowIdx,
@@ -13,7 +12,7 @@ export const generateBoard = (size: number): IBoard => {
         neighboringBombs: 0,
       }),
     ),
-  }));
+  );
 
   return board;
 };

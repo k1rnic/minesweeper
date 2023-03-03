@@ -4,7 +4,7 @@ import { CellStates, CellValues, IBoard, ICell } from '../model/types';
 type Position = [row: number, col: number];
 
 const isBomb = (board: IBoard, [row, col]: Position) =>
-  board[row]?.cells[col]?.value === CellValues.Bomb;
+  board[row]?.[col]?.value === CellValues.Bomb;
 
 const t = (cell: ICell): Position => [cell.row - 1, cell.col];
 const b = (cell: ICell): Position => [cell.row + 1, cell.col];
@@ -36,22 +36,19 @@ export const generateBombs = (board: IBoard, bombCount: number) => {
     const row = Math.floor(Math.random() * BOARD_SIZE);
     const col = Math.floor(Math.random() * BOARD_SIZE);
 
-    const cellState = boardWithBombs[row].cells[col].state;
-    const cellValue = boardWithBombs[row].cells[col].value;
+    const cellState = boardWithBombs[row][col].state;
+    const cellValue = boardWithBombs[row][col].value;
 
     if (cellState !== CellStates.Revealed && cellValue !== CellValues.Bomb) {
-      boardWithBombs[row].cells[col].value = CellValues.Bomb;
+      boardWithBombs[row][col].value = CellValues.Bomb;
       bombPlaced++;
     }
   }
 
   boardWithBombs.forEach((line) =>
-    line.cells.forEach((cell) => {
+    line.forEach((cell) => {
       if (cell.value === CellValues.Empty) {
         cell.neighboringBombs = countNeighboringBombs(boardWithBombs, cell);
-        cell.value = cell.neighboringBombs
-          ? CellValues.BombsAround
-          : CellValues.Empty;
       }
     }),
   );
