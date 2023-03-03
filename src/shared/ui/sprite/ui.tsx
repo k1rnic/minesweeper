@@ -1,13 +1,9 @@
 import { Box } from '@/shared/ui/box';
 import styled from 'styled-components';
 import spriteSrc from './assets/sprites.png';
+import { ISprite } from './model';
 
-export type SpriteProps = {
-  width: number;
-  height: number;
-  x: number;
-  y: number;
-};
+export type SpriteProps = ISprite;
 
 export const Sprite = styled(Box)<SpriteProps>(
   ({ height, width, x, y }) => `
