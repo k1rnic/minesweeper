@@ -1,12 +1,10 @@
-import { Board } from '@/entities/board';
 import { startGameModel } from '@/features/start-game';
 import { Box } from '@/shared/ui/box';
 
-import { GamePanel } from '@/widgets/game-panel';
 import { useEffect } from 'react';
 import { createGlobalStyle } from 'styled-components';
 
-import '@/processes/move-listener';
+import { MineSweeper } from '@/widgets/minesweeper';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -33,8 +31,7 @@ export const App = () => {
         alignItems="center"
       >
         <Box display="inline-flex" flexDirection="column" bg="#BDBDBD" p={2}>
-          <GamePanel />
-          <Board />
+          <MineSweeper />
         </Box>
       </Box>
     </>
