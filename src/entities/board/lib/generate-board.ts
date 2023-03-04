@@ -9,7 +9,7 @@ export const generateBoard = (size: number): IBoard => {
         col: colIdx,
         state: CellStates.Hidden,
         value: CellValues.Empty,
-        neighboringBombs: 0,
+        neighborBombs: 0,
       }),
     ),
   );

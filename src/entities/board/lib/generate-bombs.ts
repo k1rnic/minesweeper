@@ -1,33 +1,13 @@
 import { BOARD_SIZE } from '../model/constants';
-import { CellStates, CellValues, IBoard, ICell } from '../model/types';
+import { CellValues, IBoard, ICell } from '../model/types';
+import { isBomb, isRevealed } from './cell-state';
+import { getNeighborBombs, isNeighborTo } from './neighbors';
 
-type Position = [row: number, col: number];
-
-const isBomb = (board: IBoard, [row, col]: Position) =>
-  board[row]?.[col]?.value === CellValues.Bomb;
-
-const t = (cell: ICell): Position => [cell.row - 1, cell.col];
-const b = (cell: ICell): Position => [cell.row + 1, cell.col];
-const l = (cell: ICell): Position => [cell.row, cell.col - 1];
-const lt = (cell: ICell): Position => [cell.row - 1, cell.col - 1];
-const lb = (cell: ICell): Position => [cell.row + 1, cell.col - 1];
-const r = (cell: ICell): Position => [cell.row, cell.col + 1];
-const rt = (cell: ICell): Position => [cell.row - 1, cell.col + 1];
-const rb = (cell: ICell): Position => [cell.row + 1, cell.col + 1];
-
-const countNeighboringBombs = (board: IBoard, cell: ICell) =>
-  [
-    isBomb(board, t(cell)),
-    isBomb(board, b(cell)),
-    isBomb(board, l(cell)),
-    isBomb(board, lt(cell)),
-    isBomb(board, lb(cell)),
-    isBomb(board, r(cell)),
-    isBomb(board, rt(cell)),
-    isBomb(board, rb(cell)),
-  ].filter((state) => state).length;
-
-export const generateBombs = (board: IBoard, bombCount: number) => {
+export const generateBombs = (
+  board: IBoard,
+  bombCount: number,
+  initialCell: ICell,
+) => {
   const boardWithBombs = structuredClone(board);
 
   let bombPlaced = 0;
@@ -36,11 +16,15 @@ export const generateBombs = (board: IBoard, bombCount: number) => {
     const row = Math.floor(Math.random() * BOARD_SIZE);
     const col = Math.floor(Math.random() * BOARD_SIZE);
 
-    const cellState = boardWithBombs[row][col].state;
-    const cellValue = boardWithBombs[row][col].value;
+    const cell = boardWithBombs[row][col];
 
-    if (cellState !== CellStates.Revealed && cellValue !== CellValues.Bomb) {
-      boardWithBombs[row][col].value = CellValues.Bomb;
+    const noInitial =
+      cell.col !== initialCell.col && cell.row !== initialCell.row;
+
+    const noNeighborRevealed = !isNeighborTo(board, initialCell, cell);
+
+    if (!isRevealed(cell) && !isBomb(cell) && noNeighborRevealed && noInitial) {
+      cell.value = CellValues.Bomb;
       bombPlaced++;
     }
   }
@@ -48,7 +32,7 @@ export const generateBombs = (board: IBoard, bombCount: number) => {
   boardWithBombs.forEach((line) =>
     line.forEach((cell) => {
       if (cell.value === CellValues.Empty) {
-        cell.neighboringBombs = countNeighboringBombs(boardWithBombs, cell);
+        cell.neighborBombs = getNeighborBombs(boardWithBombs, cell).length;
       }
     }),
   );

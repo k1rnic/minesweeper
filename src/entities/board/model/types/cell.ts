@@ -3,7 +3,7 @@ export interface ICell {
   col: number;
   state: CellStates;
   value: CellValues;
-  neighboringBombs: number;
+  neighborBombs: number;
 }
 
 export enum CellStates {

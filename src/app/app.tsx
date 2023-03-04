@@ -6,6 +6,8 @@ import { GamePanel } from '@/widgets/game-panel';
 import { useEffect } from 'react';
 import { createGlobalStyle } from 'styled-components';
 
+import '@/processes/move-listener';
+
 const GlobalStyle = createGlobalStyle`
   * {
     margin: 0;

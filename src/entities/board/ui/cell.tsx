@@ -20,18 +20,17 @@ export const Cell = memo(
     col,
     value,
     state,
-    neighboringBombs,
+    neighborBombs,
     onClick,
     ...spriteProps
   }: CellProps) => {
-    const spriteLine =
-      state === CellStates.Revealed && neighboringBombs ? 4 : 3;
+    const spriteLine = state === CellStates.Revealed && neighborBombs ? 4 : 3;
 
     const spritePosition = useMemo(() => {
       switch (state) {
         case CellStates.Revealed: {
-          if (neighboringBombs) {
-            return neighboringBombs;
+          if (neighborBombs) {
+            return neighborBombs;
           }
           return value === CellValues.Empty
             ? CellSpritePositions.Empty
@@ -48,11 +47,11 @@ export const Cell = memo(
         case CellStates.Defused:
           return CellSpritePositions.Defused;
       }
-    }, [state, value, neighboringBombs]);
+    }, [state, value, neighborBombs]);
 
     const sprite = useSprite(spriteLine, spritePosition);
 
-    const getCellInfo = () => ({ row, col, value, state, neighboringBombs });
+    const getCellInfo = () => ({ row, col, value, state, neighborBombs });
 
     const handleClick: MouseEventHandler<HTMLDivElement> = (e) => {
       clickCell(getCellInfo());
