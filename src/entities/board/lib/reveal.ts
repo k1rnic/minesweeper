@@ -20,3 +20,13 @@ export const revealCellsDeep = (
     }
   }
 };
+
+export const revealBombs = (board: IBoard) => {
+  return board.map((line) =>
+    line.map((cell) =>
+      cell.value === CellValues.Bomb
+        ? { ...cell, state: CellStates.Revealed }
+        : cell,
+    ),
+  );
+};

@@ -1,5 +1,10 @@
 import { createEvent, createStore } from 'effector';
-import { generateBoard, generateBombs, revealCellsDeep } from '../lib';
+import {
+  generateBoard,
+  generateBombs,
+  revealBombs,
+  revealCellsDeep,
+} from '../lib';
 import { BOARD_SIZE, BOMB_COUNT } from './constants';
 import { IBoard, ICell } from './types';
 
@@ -8,6 +13,7 @@ const clickCell = createEvent<ICell>();
 const pressCell = createEvent<ICell>();
 const revealCell = createEvent<ICell>();
 const placeBombs = createEvent();
+const revealAllBombs = createEvent();
 
 const $touched = createStore(false)
   .on(revealCell, () => true)
@@ -28,7 +34,11 @@ const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
 
     revealCellsDeep(lines, cell);
     return { bombPlaced: true, lines: structuredClone(lines) };
-  });
+  })
+  .on(revealAllBombs, (state) => ({
+    ...state,
+    lines: revealBombs(state.lines),
+  }));
 
 const $lines = $board.map(({ lines }) => lines);
 const $bombsCount = createStore(BOMB_COUNT).reset(placeBombs);
@@ -42,4 +52,5 @@ export {
   pressCell,
   placeBombs,
   revealCell,
+  revealAllBombs,
 };
