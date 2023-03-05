@@ -1,4 +1,4 @@
-import { startGameModel } from '@/features/start-game';
+import { playModel } from '@/features/play';
 import { Box } from '@/shared/ui/box';
 
 import { useEffect } from 'react';
@@ -16,7 +16,7 @@ const GlobalStyle = createGlobalStyle`
 
 export const App = () => {
   useEffect(() => {
-    startGameModel.start();
+    playModel.start();
   }, []);
 
   return (
