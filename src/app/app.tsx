@@ -23,9 +23,7 @@ export const App = () => (
       justifyContent="center"
       alignItems="center"
     >
-      <Box display="inline-flex" flexDirection="column" bg="#BDBDBD" p={2}>
-        <MineSweeper />
-      </Box>
+      <MineSweeper />
     </Box>
   </>
 );

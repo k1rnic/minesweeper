@@ -6,6 +6,8 @@ import {
   ColorProps,
   flexbox,
   FlexboxProps,
+  grid,
+  GridProps,
   layout,
   LayoutProps,
   position,
@@ -19,9 +21,11 @@ export type BoxProps = LayoutProps &
   SpaceProps &
   BorderProps &
   PositionProps &
-  FlexboxProps;
+  FlexboxProps &
+  GridProps;
 
 export const Box = styled.div<BoxProps>`
+  ${grid}
   ${layout}
   ${space}
   ${color}
