@@ -1,6 +1,8 @@
-import { CellValues, ICell } from '../model';
+import { CellValues, ICell } from '../model/types';
 
-export const isRevealed = (cell: ICell | null) => cell?.revealed;
+export const isRevealed = (cell: ICell | null) => !!cell?.revealed;
+
+export const isHidden = (cell: ICell | null) => !cell?.revealed;
 
 export const isEmpty = (cell: ICell | null) => cell?.value === CellValues.Empty;
 

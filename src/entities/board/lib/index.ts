@@ -1,3 +1,4 @@
+export * from './board';
 export * from './cell-state';
 export * from './generate-board';
 export * from './generate-bombs';

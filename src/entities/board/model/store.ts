@@ -3,8 +3,9 @@ import { createEvent, createStore } from 'effector';
 import {
   generateBoard,
   generateBombs,
-  isRevealed,
+  isHidden,
   isRevealedOrBomb,
+  isTouched,
   revealBombs,
   revealCellsDeep,
   toggleFlaggedState,
@@ -33,49 +34,32 @@ const {
   decrement: decrementBombCount,
 } = createCountdownStore({ initial: BOMB_COUNT, reset: [generate] });
 
-const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
-  lines: [],
-  bombPlaced: false,
-})
-  .on(generate, () => ({
-    bombPlaced: false,
-    lines: generateBoard(BOARD_SIZE),
-  }))
+const $board = createStore<IBoard>([])
+  .on(generate, () => generateBoard(BOARD_SIZE))
   .on(revealCell, (state, cell) => {
-    const lines = state.bombPlaced
-      ? state.lines
-      : generateBombs(state.lines, BOMB_COUNT, cell);
+    const board = isTouched(state)
+      ? state
+      : generateBombs(state, BOMB_COUNT, cell);
 
-    revealCellsDeep(lines, cell);
-    return { bombPlaced: true, lines: structuredClone(lines) };
+    revealCellsDeep(board, cell);
+    return structuredClone(board);
   })
-  .on(revealAllBombs, (state) => ({
-    ...state,
-    lines: revealBombs(state.lines),
-  }))
-  .on(markCell, (state, cell) => {
-    if (isRevealed(cell)) {
-      return state;
-    }
+  .on(revealAllBombs, revealBombs)
+  .on(markCell.filter({ fn: isHidden }), (state, cell) => {
+    const board = structuredClone(state);
+    board[cell.row][cell.col].state = toggleFlaggedState(cell.state);
 
-    const lines = structuredClone(state.lines);
-    lines[cell.row][cell.col].state = toggleFlaggedState(cell.state);
-
-    return { ...state, lines };
+    return board;
   });
 
-const $lines = $board.map(({ lines }) => lines);
+const $touched = $board.map(isTouched);
 
-const $touched = $board.map(({ lines }) =>
-  lines.some((row) => row.some(isRevealed)),
-);
-
-const $isAllRevealed = $board.map(({ lines }) =>
-  lines.every((row) => row.every(isRevealedOrBomb)),
+const $isAllRevealed = $board.map((board) =>
+  board.every((row) => row.every(isRevealedOrBomb)),
 );
 
 export {
-  $lines,
+  $board,
   $touched,
   $bombsCount,
   $isAllRevealed,

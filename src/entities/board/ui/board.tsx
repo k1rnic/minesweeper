@@ -1,14 +1,14 @@
 import { Box } from '@/shared/ui/box';
 import { useStore } from 'effector-react';
-import { $lines } from '../model';
+import { $board } from '../model';
 import { BoardLine } from './board-line';
 
 export const Board = () => {
-  const lines = useStore($lines);
+  const board = useStore($board);
 
   return (
     <Box display="flex" flexDirection="column">
-      {lines.map((cells, idx) => (
+      {board.map((cells, idx) => (
         <BoardLine key={idx} cells={cells} />
       ))}
     </Box>

@@ -1,6 +1,6 @@
 import { BOARD_SIZE } from '../model/constants';
 import { CellValues, IBoard, ICell } from '../model/types';
-import { isBomb, isRevealed } from './cell-state';
+import { isEmpty, isHidden } from './cell-state';
 import { getNeighborBombs, isNeighborTo } from './neighbors';
 
 export const generateBombs = (
@@ -23,7 +23,7 @@ export const generateBombs = (
 
     const noNeighborRevealed = !isNeighborTo(board, initialCell, cell);
 
-    if (!isRevealed(cell) && !isBomb(cell) && noNeighborRevealed && noInitial) {
+    if (isHidden(cell) && isEmpty(cell) && noNeighborRevealed && noInitial) {
       cell.value = CellValues.Bomb;
       bombPlaced++;
     }
