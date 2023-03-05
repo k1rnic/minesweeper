@@ -1,10 +1,8 @@
 import { Board, BombCounter } from '@/entities/board';
-import { GameStateButton, withStartGameByClick } from '@/entities/game';
+import { GameController } from '@/entities/game';
 import { Timer } from '@/entities/timer';
 
 import { Box } from '@/shared/ui/box';
-
-const GameController = withStartGameByClick(GameStateButton);
 
 export const MineSweeper = () => (
   <Box display="inline-flex" flexDirection="column" bg="#BDBDBD" p={2}>

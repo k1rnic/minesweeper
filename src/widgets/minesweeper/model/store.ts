@@ -1,68 +1,68 @@
-import { boardModel, canToggleFlaggedState } from '@/entities/board';
-import { gameModel } from '@/entities/game';
+import {
+  boardModel,
+  canToggleFlaggedState,
+  isBomb,
+  isDefault,
+  isHidden,
+} from '@/entities/board';
+import { gameModel, isPlaying } from '@/entities/game';
 import { timerModel } from '@/entities/timer';
 
 import { sample, split } from 'effector';
 
 sample({
-  clock: gameModel.start,
-  target: [timerModel.reset, boardModel.generate],
-});
-
-sample({
-  clock: gameModel.start,
-  fn: () => gameModel.GameStates.Play,
-  target: gameModel.changeGameState,
-});
-
-sample({
   source: boardModel.$touched,
   filter: (touched) => touched,
-  target: timerModel.start,
+  target: [gameModel.play, timerModel.start],
 });
 
-const cellClick = sample({
-  clock: boardModel.clickCell,
-  source: gameModel.$gameState,
-  filter: (gameStatus, { revealed, state }) =>
-    gameStatus === gameModel.GameStates.Play &&
-    state === boardModel.CellStates.Default &&
-    !revealed,
-  fn: (_, cell) => cell,
+sample({
+  clock: [gameModel.win, gameModel.lose],
+  target: timerModel.stop,
 });
 
-cellClick.watch((cell) => {
-  boardModel.revealCell(cell);
-  if (cell.value === boardModel.CellValues.Bomb) {
-    boardModel.revealAllBombs();
-    gameModel.changeGameState(gameModel.GameStates.Lose);
-    timerModel.stop();
-  }
+sample({
+  clock: gameModel.restart,
+  target: [timerModel.reset, boardModel.generate],
 });
 
 sample({
   clock: boardModel.$isAllRevealed,
   filter: (revealed) => revealed,
-  fn: () => gameModel.GameStates.Win,
-  target: [gameModel.changeGameState, timerModel.stop],
+  target: gameModel.win,
 });
 
-const cellRightClick = sample({
+const clickHiddenCell = sample({
+  clock: boardModel.clickCell.filter({
+    fn: (cell) => isDefault(cell) && isHidden(cell),
+  }),
+  source: gameModel.$gameState,
+  filter: isPlaying,
+  fn: (_, cell) => cell,
+  target: boardModel.revealCell,
+});
+
+sample({
+  source: clickHiddenCell,
+  filter: isBomb,
+  target: [gameModel.lose, boardModel.revealAllBombs],
+});
+
+const toggleCellFlag = sample({
   clock: boardModel.rightClickCell,
   source: [gameModel.$gameState, boardModel.$bombsCount] as const,
   filter: ([gameState, count], cell) =>
-    gameState === gameModel.GameStates.Play &&
-    canToggleFlaggedState(cell.state, count),
+    isPlaying(gameState) && canToggleFlaggedState(cell.state, count),
   fn: (_, cell) => cell,
 });
 
 sample({
-  clock: cellRightClick,
+  clock: toggleCellFlag,
   target: boardModel.markCell,
 });
 
 split({
-  source: cellRightClick,
+  source: toggleCellFlag,
   match: {
     increment: (cell) => cell.state === boardModel.CellStates.Flagged,
     decrement: (cell) => cell.state === boardModel.CellStates.Default,
@@ -74,8 +74,9 @@ split({
 });
 
 sample({
-  source: [gameModel.$gameState, boardModel.$cellPressed] as const,
-  filter: ([gameState]) => gameState === gameModel.GameStates.Play,
-  fn: ([_, pressState]) => pressState,
-  target: gameModel.makeMove,
+  clock: boardModel.pressCell,
+  source: gameModel.$gameState,
+  filter: isPlaying,
+  fn: (_, pressState) => pressState,
+  target: gameModel.movePress,
 });

@@ -1,1 +1,1 @@
-export * from './game-state-button';
+export * from './game-controller';

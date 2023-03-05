@@ -1,13 +1,34 @@
-import { createEvent, createStore, restore } from 'effector';
+import { createEvent, createStore } from 'effector';
+import { isPlaying } from '../lib';
 import { GameStates } from './types';
 
-const start = createEvent();
-const stop = createEvent();
+const restart = createEvent();
+const startPress = createEvent();
+const play = createEvent();
+const win = createEvent();
+const lose = createEvent();
 
-const changeGameState = createEvent<GameStates>();
-const makeMove = createEvent<boolean>();
+const movePress = createEvent<boolean>();
 
-const $gameState = restore(changeGameState, null);
-const $movePressed = createStore(false).on(makeMove, (_, state) => state);
+const $gameState = createStore<GameStates>(GameStates.Waiting)
+  .on(play, () => GameStates.Playing)
+  .on(startPress, () => GameStates.StartPress)
+  .on(win, () => GameStates.Win)
+  .on(lose, () => GameStates.Lose)
+  .reset(restart);
 
-export { $gameState, $movePressed, start, stop, changeGameState, makeMove };
+const $playing = $gameState.map(isPlaying);
+
+const $movePressed = createStore(false).on(movePress, (_, state) => state);
+
+export {
+  $gameState,
+  $movePressed,
+  $playing,
+  play,
+  restart,
+  startPress,
+  win,
+  lose,
+  movePress,
+};

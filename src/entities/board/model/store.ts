@@ -20,10 +20,11 @@ const revealCell = createEvent<ICell>();
 
 const revealAllBombs = createEvent();
 
-const toggleCellPress = createEvent<boolean>();
+const pressCell = createEvent<boolean>();
+
 const $cellPressed = createStore<boolean>(false).on(
-  toggleCellPress,
-  (_, pressState) => pressState,
+  pressCell,
+  (_, state) => state,
 );
 
 const markCell = createEvent<ICell>();
@@ -34,8 +35,9 @@ const {
   decrement: decrementBombCount,
 } = createCountdownStore({ initial: BOMB_COUNT, reset: [generate] });
 
-const $board = createStore<IBoard>([])
-  .on(generate, () => generateBoard(BOARD_SIZE))
+const initialBoard = generateBoard(BOARD_SIZE);
+
+const $board = createStore<IBoard>(initialBoard)
   .on(revealCell, (state, cell) => {
     const board = isTouched(state)
       ? state
@@ -50,7 +52,8 @@ const $board = createStore<IBoard>([])
     board[cell.row][cell.col].state = toggleFlaggedState(cell.state);
 
     return board;
-  });
+  })
+  .reset(generate);
 
 const $touched = $board.map(isTouched);
 
@@ -67,7 +70,7 @@ export {
   generate,
   clickCell,
   rightClickCell,
-  toggleCellPress,
+  pressCell,
   revealCell,
   revealAllBombs,
   markCell,
