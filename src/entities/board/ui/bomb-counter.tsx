@@ -1,9 +1,13 @@
 import { ScoreBoard } from '@/shared/ui/score-board';
 import { useStore } from 'effector-react';
-import { $bombsCount } from '../model';
+import { BoardStore } from '../model';
 
-export const BombCounter = () => {
-  const bombsCount = useStore($bombsCount);
+type BombCounterProps = {
+  store: BoardStore;
+};
+
+export const BombCounter = ({ store }: BombCounterProps) => {
+  const bombsCount = useStore(store.$bombsCount);
 
   return <ScoreBoard value={bombsCount} />;
 };

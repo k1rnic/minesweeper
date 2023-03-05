@@ -1,13 +1,6 @@
 import { Sprite, useSprite } from '@/shared/ui/sprite';
 import { memo, MouseEventHandler, useMemo } from 'react';
-import {
-  CellStates,
-  CellValues,
-  clickCell,
-  ICell,
-  pressCell,
-  rightClickCell,
-} from '../model';
+import { CellStates, CellValues, ICell } from '../model';
 
 enum CellSpritePositions {
   Hidden = 1,
@@ -19,7 +12,11 @@ enum CellSpritePositions {
   Defused = 8,
 }
 
-export type CellProps = ICell & PrefixProps<JSX.IntrinsicElements['div'], 'on'>;
+export type CellProps = ICell & {
+  onCellClick: (cell: ICell) => void;
+  onCellRightClick: (cell: ICell) => void;
+  onCellPress: (cell: ICell, pressed: boolean) => void;
+};
 
 export const Cell = memo(
   ({
@@ -29,7 +26,9 @@ export const Cell = memo(
     state,
     revealed,
     neighborBombs,
-    onClick,
+    onCellClick,
+    onCellRightClick,
+    onCellPress,
     ...spriteProps
   }: CellProps) => {
     const spriteLine = revealed && neighborBombs ? 4 : 3;
@@ -74,13 +73,12 @@ export const Cell = memo(
     });
 
     const handleClick: MouseEventHandler<HTMLDivElement> = (e) => {
-      clickCell(getCellInfo());
-      onClick?.(e);
+      onCellClick(getCellInfo());
     };
 
     const handleRightClick: MouseEventHandler<HTMLDivElement> = (e) => {
       e.preventDefault();
-      rightClickCell(getCellInfo());
+      onCellRightClick(getCellInfo());
     };
 
     return (
@@ -88,8 +86,8 @@ export const Cell = memo(
         {...sprite}
         {...spriteProps}
         onClick={handleClick}
-        onMouseDown={() => pressCell(true)}
-        onMouseUp={() => pressCell(false)}
+        onMouseDown={() => onCellPress(getCellInfo(), true)}
+        onMouseUp={() => onCellPress(getCellInfo(), false)}
         onContextMenu={handleRightClick}
       />
     );

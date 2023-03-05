@@ -1,11 +1,6 @@
 import { createEvent, createStore } from 'effector';
 
-const start = createEvent();
-const stop = createEvent();
-const tick = createEvent();
-const reset = createEvent();
-
-interface TimerStore {
+interface Timer {
   elapsed: number;
   intervalId: NodeJS.Timer | null;
 }
@@ -16,21 +11,30 @@ const clearIntervalId = (intervalId: NodeJS.Timer | null) => {
   }
 };
 
-const $timer = createStore<TimerStore>({ elapsed: 0, intervalId: null })
-  .on(start, (state) => {
-    clearIntervalId(state.intervalId);
-    return { elapsed: 0, intervalId: setInterval(tick, 1000) };
-  })
-  .on(stop, (state) => {
-    clearIntervalId(state.intervalId);
-    return { ...state, intervalId: null };
-  })
-  .on(reset, (state) => {
-    clearIntervalId(state.intervalId);
-    return { elapsed: 0, intervalId: null };
-  })
-  .on(tick, (state) => ({ ...state, elapsed: state.elapsed + 1 }));
+export const createTimerStore = () => {
+  const start = createEvent();
+  const stop = createEvent();
+  const tick = createEvent();
+  const reset = createEvent();
 
-const $elapsed = $timer.map(({ elapsed }) => elapsed);
+  const $timer = createStore<Timer>({ elapsed: 0, intervalId: null })
+    .on(start, (state) => {
+      clearIntervalId(state.intervalId);
+      return { elapsed: 0, intervalId: setInterval(tick, 1000) };
+    })
+    .on(stop, (state) => {
+      clearIntervalId(state.intervalId);
+      return { ...state, intervalId: null };
+    })
+    .on(reset, (state) => {
+      clearIntervalId(state.intervalId);
+      return { elapsed: 0, intervalId: null };
+    })
+    .on(tick, (state) => ({ ...state, elapsed: state.elapsed + 1 }));
 
-export { $elapsed, start, stop, reset };
+  const $elapsed = $timer.map(({ elapsed }) => elapsed);
+
+  return { $elapsed, start, stop, reset };
+};
+
+export type TimerStore = ReturnType<typeof createTimerStore>;

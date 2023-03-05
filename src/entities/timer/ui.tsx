@@ -1,9 +1,13 @@
 import { ScoreBoard } from '@/shared/ui/score-board';
 import { useStore } from 'effector-react';
-import { $elapsed } from './model';
+import { TimerStore } from './model';
 
-export const Timer = () => {
-  const time = useStore($elapsed);
+type TimerProps = {
+  store: TimerStore;
+};
+
+export const Timer = ({ store }: TimerProps) => {
+  const time = useStore(store.$elapsed);
 
   return <ScoreBoard value={time} />;
 };

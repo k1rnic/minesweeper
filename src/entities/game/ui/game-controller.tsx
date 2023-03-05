@@ -1,19 +1,15 @@
 import { Sprite, useSprite } from '@/shared/ui/sprite';
 import { useStore } from 'effector-react';
 import { useMemo } from 'react';
-import {
-  $gameState,
-  $movePressed,
-  GameStates,
-  restart,
-  startPress,
-} from '../model';
+import { GameStates, GameStore } from '../model';
 
-type GameStateButtonProps = PrefixProps<JSX.IntrinsicElements['div'], 'on'>;
+type GameControllerProps = {
+  store: GameStore;
+} & PrefixProps<JSX.IntrinsicElements['div'], 'on'>;
 
-export const GameController = (props: GameStateButtonProps) => {
-  const state = useStore($gameState);
-  const movePressed = useStore($movePressed);
+export const GameController = ({ store, ...props }: GameControllerProps) => {
+  const state = useStore(store.$gameState);
+  const movePressed = useStore(store.$movePressed);
 
   const position = useMemo(() => {
     if (movePressed) {
@@ -34,11 +30,11 @@ export const GameController = (props: GameStateButtonProps) => {
   const sprite = useSprite(2, position);
 
   const handleClick = () => {
-    restart();
+    store.restart();
   };
 
   const handleMouseDown = () => {
-    startPress();
+    store.startPress();
   };
 
   return (

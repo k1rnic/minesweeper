@@ -10,73 +10,81 @@ import { timerModel } from '@/entities/timer';
 
 import { sample, split } from 'effector';
 
-sample({
-  source: boardModel.$touched,
-  filter: (touched) => touched,
-  target: [gameModel.play, timerModel.start],
-});
+export const createMinesweeperStore = () => {
+  const boardStore = boardModel.createBoardStore();
+  const gameStore = gameModel.createGameStore();
+  const timerStore = timerModel.createTimerStore();
 
-sample({
-  clock: [gameModel.win, gameModel.lose],
-  target: timerModel.stop,
-});
+  sample({
+    source: boardStore.$touched,
+    filter: (touched) => touched,
+    target: [gameStore.play, timerStore.start],
+  });
 
-sample({
-  clock: gameModel.restart,
-  target: [timerModel.reset, boardModel.generate],
-});
+  sample({
+    clock: [gameStore.win, gameStore.lose],
+    target: timerStore.stop,
+  });
 
-sample({
-  clock: boardModel.$isAllRevealed,
-  filter: (revealed) => revealed,
-  target: gameModel.win,
-});
+  sample({
+    clock: gameStore.restart,
+    target: [timerStore.reset, boardStore.generate],
+  });
 
-const clickHiddenCell = sample({
-  clock: boardModel.clickCell.filter({
-    fn: (cell) => isDefault(cell) && isHidden(cell),
-  }),
-  source: gameModel.$gameState,
-  filter: isPlaying,
-  fn: (_, cell) => cell,
-  target: boardModel.revealCell,
-});
+  sample({
+    clock: boardStore.$isAllRevealed,
+    filter: (revealed) => revealed,
+    target: gameStore.win,
+  });
 
-sample({
-  source: clickHiddenCell,
-  filter: isBomb,
-  target: [gameModel.lose, boardModel.revealAllBombs],
-});
+  const clickHiddenCell = sample({
+    clock: boardStore.clickCell.filter({
+      fn: (cell) => isDefault(cell) && isHidden(cell),
+    }),
+    source: gameStore.$gameState,
+    filter: isPlaying,
+    fn: (_, cell) => cell,
+    target: boardStore.revealCell,
+  });
 
-const toggleCellFlag = sample({
-  clock: boardModel.rightClickCell,
-  source: [gameModel.$gameState, boardModel.$bombsCount] as const,
-  filter: ([gameState, count], cell) =>
-    isPlaying(gameState) && canToggleFlaggedState(cell.state, count),
-  fn: (_, cell) => cell,
-});
+  sample({
+    source: clickHiddenCell,
+    filter: isBomb,
+    target: [gameStore.lose, boardStore.revealAllBombs],
+  });
 
-sample({
-  clock: toggleCellFlag,
-  target: boardModel.markCell,
-});
+  const toggleCellFlag = sample({
+    clock: boardStore.rightClickCell,
+    source: [gameStore.$gameState, boardStore.$bombsCount] as const,
+    filter: ([gameState, count], cell) =>
+      isPlaying(gameState) && canToggleFlaggedState(cell.state, count),
+    fn: (_, cell) => cell,
+  });
 
-split({
-  source: toggleCellFlag,
-  match: {
-    increment: (cell) => cell.state === boardModel.CellStates.Flagged,
-    decrement: (cell) => cell.state === boardModel.CellStates.Default,
-  },
-  cases: {
-    increment: boardModel.incrementBombCount,
-    decrement: boardModel.decrementBombCount,
-  },
-});
+  sample({
+    clock: toggleCellFlag,
+    target: boardStore.markCell,
+  });
 
-sample({
-  clock: boardModel.pressCell,
-  source: gameModel.$gameState,
-  filter: isPlaying,
-  fn: (_, pressState) => pressState,
-  target: gameModel.movePress,
-});
+  split({
+    source: toggleCellFlag,
+    match: {
+      increment: (cell) => cell.state === boardModel.CellStates.Flagged,
+      decrement: (cell) => cell.state === boardModel.CellStates.Default,
+    },
+    cases: {
+      increment: boardStore.incrementBombCount,
+      decrement: boardStore.decrementBombCount,
+    },
+  });
+
+  sample({
+    clock: boardStore.pressCell,
+    source: gameStore.$gameState,
+    filter: isPlaying,
+    fn: (_, pressState) => pressState,
+    target: gameStore.movePress,
+  });
+
+  return { boardStore, timerStore, gameStore };
+};
