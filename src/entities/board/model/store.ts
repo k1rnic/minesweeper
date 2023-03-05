@@ -1,4 +1,4 @@
-import { createEvent, createStore, sample } from 'effector';
+import { createEvent, createStore } from 'effector';
 import {
   generateBoard,
   generateBombs,
@@ -7,11 +7,10 @@ import {
   toggleFlaggedState,
 } from '../lib';
 import { BOARD_SIZE, BOMB_COUNT } from './constants';
-import { CellStates, CellValues, IBoard, ICell } from './types';
+import { CellValues, IBoard, ICell } from './types';
 
 const generate = createEvent();
 const clickCell = createEvent<ICell>();
-const pressCell = createEvent<ICell>();
 const revealCell = createEvent<ICell>();
 
 const revealAllBombs = createEvent();
@@ -19,6 +18,12 @@ const revealAllBombs = createEvent();
 const $touched = createStore(false)
   .on(revealCell, () => true)
   .reset(generate);
+
+const toggleCellPress = createEvent<boolean>();
+const $cellPressed = createStore<boolean>(false).on(
+  toggleCellPress,
+  (_, pressState) => pressState,
+);
 
 const markCell = createEvent<ICell>();
 const incrementBombCount = createEvent();
@@ -28,21 +33,6 @@ const $bombsCount = createStore(BOMB_COUNT)
   .on(incrementBombCount, (count) => Math.min(BOMB_COUNT, count + 1))
   .on(decrementBombCount, (count) => Math.max(0, count - 1))
   .reset(generate);
-
-sample({
-  clock: markCell,
-  source: $bombsCount,
-  filter: (count, cell) =>
-    cell.state !== CellStates.Default && count < BOMB_COUNT,
-  target: incrementBombCount,
-});
-
-sample({
-  clock: markCell,
-  source: $bombsCount,
-  filter: (count, cell) => cell.state === CellStates.Default && count > 0,
-  target: decrementBombCount,
-});
 
 const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
   lines: [],
@@ -92,10 +82,13 @@ export {
   $touched,
   $bombsCount,
   $isAllRevealed,
+  $cellPressed,
   generate,
   clickCell,
-  pressCell,
+  toggleCellPress,
   revealCell,
   revealAllBombs,
   markCell,
+  incrementBombCount,
+  decrementBombCount,
 };

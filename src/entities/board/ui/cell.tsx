@@ -6,7 +6,7 @@ import {
   clickCell,
   ICell,
   markCell,
-  pressCell,
+  toggleCellPress,
 } from '../model';
 
 enum CellSpritePositions {
@@ -78,8 +78,8 @@ export const Cell = memo(
       onClick?.(e);
     };
 
-    const handlePress = () => {
-      pressCell(getCellInfo());
+    const togglePress = (state: boolean) => {
+      toggleCellPress(state);
     };
 
     const handleRightClick: MouseEventHandler<HTMLDivElement> = (e) => {
@@ -92,7 +92,8 @@ export const Cell = memo(
         {...sprite}
         {...spriteProps}
         onClick={handleClick}
-        onKeyDown={handlePress}
+        onMouseDown={() => togglePress(true)}
+        onMouseUp={() => togglePress(false)}
         onContextMenu={handleRightClick}
       />
     );

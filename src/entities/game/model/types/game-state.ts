@@ -1,7 +1,6 @@
 export enum GameStates {
-  Start,
+  Play,
   StartPress,
-  MakeMove,
   Win,
   Lose,
 }

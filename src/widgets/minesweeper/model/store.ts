@@ -11,7 +11,7 @@ sample({
 
 sample({
   clock: playModel.start,
-  fn: () => gameModel.GameStates.Start,
+  fn: () => gameModel.GameStates.Play,
   target: gameModel.changeGameState,
 });
 
@@ -25,7 +25,7 @@ const hiddenCellClick = sample({
   clock: boardModel.clickCell,
   source: gameModel.$gameState,
   filter: (gameStatus, { revealed, state }) =>
-    gameStatus === gameModel.GameStates.Start &&
+    gameStatus === gameModel.GameStates.Play &&
     state === boardModel.CellStates.Default &&
     !revealed,
   fn: (_, cell) => cell,
@@ -45,4 +45,28 @@ sample({
   filter: (revealed) => revealed,
   fn: () => gameModel.GameStates.Win,
   target: [gameModel.changeGameState, timerModel.stop],
+});
+
+sample({
+  clock: boardModel.markCell,
+  source: boardModel.$bombsCount,
+  filter: (count, cell) =>
+    cell.state !== boardModel.CellStates.Default &&
+    count < boardModel.BOMB_COUNT,
+  target: boardModel.incrementBombCount,
+});
+
+sample({
+  clock: boardModel.markCell,
+  source: boardModel.$bombsCount,
+  filter: (count, cell) =>
+    cell.state === boardModel.CellStates.Default && count > 0,
+  target: boardModel.decrementBombCount,
+});
+
+sample({
+  source: [gameModel.$gameState, boardModel.$cellPressed] as const,
+  filter: ([gameState]) => gameState === gameModel.GameStates.Play,
+  fn: ([_, pressState]) => pressState,
+  target: gameModel.makeMove,
 });
