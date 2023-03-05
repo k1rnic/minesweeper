@@ -38,8 +38,11 @@ hiddenCellClick.watch((cell) => {
   }
 });
 
+boardModel.$isAllRevealed.watch(console.log);
+
 sample({
-  clock: boardModel.$isAllCellsOpened,
+  clock: boardModel.$isAllRevealed,
+  filter: (revealed) => revealed,
   fn: () => gameModel.GameStates.Win,
-  target: gameModel.changeGameState,
+  target: [gameModel.changeGameState, timerModel.stop],
 });

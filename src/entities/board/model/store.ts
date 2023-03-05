@@ -43,9 +43,13 @@ const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
 const $lines = $board.map(({ lines }) => lines);
 const $bombsCount = createStore(BOMB_COUNT).reset(placeBombs);
 
-const $isAllCellsOpened = $board.map(({ lines }) =>
+const $isAllRevealed = $board.map(({ lines }) =>
   lines.every((row) =>
-    row.every((cell) => cell.revealed && cell.value !== CellValues.Bomb),
+    row.every((cell) =>
+      cell.revealed
+        ? cell.value === CellValues.Empty
+        : cell.value === CellValues.Bomb,
+    ),
   ),
 );
 
@@ -53,7 +57,7 @@ export {
   $lines,
   $touched,
   $bombsCount,
-  $isAllCellsOpened,
+  $isAllRevealed,
   generate,
   clickCell,
   pressCell,
