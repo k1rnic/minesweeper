@@ -1,9 +1,9 @@
-import { playModel } from '@/features/play';
 import { Box } from '@/shared/ui/box';
 
 import { useEffect } from 'react';
 import { createGlobalStyle } from 'styled-components';
 
+import { gameModel } from '@/entities/game';
 import { MineSweeper } from '@/widgets/minesweeper';
 
 const GlobalStyle = createGlobalStyle`
@@ -16,7 +16,7 @@ const GlobalStyle = createGlobalStyle`
 
 export const App = () => {
   useEffect(() => {
-    playModel.start();
+    gameModel.start();
   }, []);
 
   return (

@@ -1,16 +1,16 @@
 import { boardModel } from '@/entities/board';
 import { gameModel } from '@/entities/game';
 import { timerModel } from '@/entities/timer';
-import { playModel } from '@/features/play';
+
 import { sample } from 'effector';
 
 sample({
-  clock: playModel.start,
+  clock: gameModel.start,
   target: [timerModel.reset, boardModel.generate],
 });
 
 sample({
-  clock: playModel.start,
+  clock: gameModel.start,
   fn: () => gameModel.GameStates.Play,
   target: gameModel.changeGameState,
 });

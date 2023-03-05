@@ -1,7 +1,7 @@
 import { Board, BombCounter } from '@/entities/board';
-import { GameStateButton } from '@/entities/game';
+import { GameStateButton, withStartGameByClick } from '@/entities/game';
 import { Timer } from '@/entities/timer';
-import { withStartGameByClick } from '@/features/play';
+
 import { Box } from '@/shared/ui/box';
 
 const GameController = withStartGameByClick(GameStateButton);
