@@ -2,7 +2,7 @@
 
 > <b>React + TS + effector + FSD</b> implementation of minesweeper game
 
-## [Let's go](https://main--visionary-biscuit-301b21.netlify.app/)
+### [Let's go](https://main--visionary-biscuit-301b21.netlify.app/)
 
 ## To run game locally:
 
