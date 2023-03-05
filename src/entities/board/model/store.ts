@@ -1,23 +1,23 @@
+import { createCountdownStore } from '@/shared/lib/effector';
 import { createEvent, createStore } from 'effector';
 import {
   generateBoard,
   generateBombs,
+  isRevealed,
+  isRevealedOrBomb,
   revealBombs,
   revealCellsDeep,
   toggleFlaggedState,
 } from '../lib';
 import { BOARD_SIZE, BOMB_COUNT } from './constants';
-import { CellValues, IBoard, ICell } from './types';
+import { IBoard, ICell } from './types';
 
 const generate = createEvent();
 const clickCell = createEvent<ICell>();
+const rightClickCell = createEvent<ICell>();
 const revealCell = createEvent<ICell>();
 
 const revealAllBombs = createEvent();
-
-const $touched = createStore(false)
-  .on(revealCell, () => true)
-  .reset(generate);
 
 const toggleCellPress = createEvent<boolean>();
 const $cellPressed = createStore<boolean>(false).on(
@@ -26,13 +26,12 @@ const $cellPressed = createStore<boolean>(false).on(
 );
 
 const markCell = createEvent<ICell>();
-const incrementBombCount = createEvent();
-const decrementBombCount = createEvent();
 
-const $bombsCount = createStore(BOMB_COUNT)
-  .on(incrementBombCount, (count) => Math.min(BOMB_COUNT, count + 1))
-  .on(decrementBombCount, (count) => Math.max(0, count - 1))
-  .reset(generate);
+const {
+  $countdown: $bombsCount,
+  increment: incrementBombCount,
+  decrement: decrementBombCount,
+} = createCountdownStore({ initial: BOMB_COUNT, reset: [generate] });
 
 const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
   lines: [],
@@ -55,7 +54,7 @@ const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
     lines: revealBombs(state.lines),
   }))
   .on(markCell, (state, cell) => {
-    if (cell.revealed) {
+    if (isRevealed(cell)) {
       return state;
     }
 
@@ -67,14 +66,12 @@ const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
 
 const $lines = $board.map(({ lines }) => lines);
 
+const $touched = $board.map(({ lines }) =>
+  lines.some((row) => row.some(isRevealed)),
+);
+
 const $isAllRevealed = $board.map(({ lines }) =>
-  lines.every((row) =>
-    row.every((cell) =>
-      cell.revealed
-        ? cell.value === CellValues.Empty
-        : cell.value === CellValues.Bomb,
-    ),
-  ),
+  lines.every((row) => row.every(isRevealedOrBomb)),
 );
 
 export {
@@ -85,6 +82,7 @@ export {
   $cellPressed,
   generate,
   clickCell,
+  rightClickCell,
   toggleCellPress,
   revealCell,
   revealAllBombs,

@@ -1,8 +1,8 @@
-import { boardModel } from '@/entities/board';
+import { boardModel, canToggleFlaggedState } from '@/entities/board';
 import { gameModel } from '@/entities/game';
 import { timerModel } from '@/entities/timer';
 
-import { sample } from 'effector';
+import { sample, split } from 'effector';
 
 sample({
   clock: gameModel.start,
@@ -21,7 +21,7 @@ sample({
   target: timerModel.start,
 });
 
-const hiddenCellClick = sample({
+const cellClick = sample({
   clock: boardModel.clickCell,
   source: gameModel.$gameState,
   filter: (gameStatus, { revealed, state }) =>
@@ -31,7 +31,7 @@ const hiddenCellClick = sample({
   fn: (_, cell) => cell,
 });
 
-hiddenCellClick.watch((cell) => {
+cellClick.watch((cell) => {
   boardModel.revealCell(cell);
   if (cell.value === boardModel.CellValues.Bomb) {
     boardModel.revealAllBombs();
@@ -47,21 +47,30 @@ sample({
   target: [gameModel.changeGameState, timerModel.stop],
 });
 
-sample({
-  clock: boardModel.markCell,
-  source: boardModel.$bombsCount,
-  filter: (count, cell) =>
-    cell.state !== boardModel.CellStates.Default &&
-    count < boardModel.BOMB_COUNT,
-  target: boardModel.incrementBombCount,
+const cellRightClick = sample({
+  clock: boardModel.rightClickCell,
+  source: [gameModel.$gameState, boardModel.$bombsCount] as const,
+  filter: ([gameState, count], cell) =>
+    gameState === gameModel.GameStates.Play &&
+    canToggleFlaggedState(cell.state, count),
+  fn: (_, cell) => cell,
 });
 
 sample({
-  clock: boardModel.markCell,
-  source: boardModel.$bombsCount,
-  filter: (count, cell) =>
-    cell.state === boardModel.CellStates.Default && count > 0,
-  target: boardModel.decrementBombCount,
+  clock: cellRightClick,
+  target: boardModel.markCell,
+});
+
+split({
+  source: cellRightClick,
+  match: {
+    increment: (cell) => cell.state === boardModel.CellStates.Flagged,
+    decrement: (cell) => cell.state === boardModel.CellStates.Default,
+  },
+  cases: {
+    increment: boardModel.incrementBombCount,
+    decrement: boardModel.decrementBombCount,
+  },
 });
 
 sample({

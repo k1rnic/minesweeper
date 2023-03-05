@@ -5,7 +5,7 @@ import {
   CellValues,
   clickCell,
   ICell,
-  markCell,
+  rightClickCell,
   toggleCellPress,
 } from '../model';
 
@@ -84,7 +84,7 @@ export const Cell = memo(
 
     const handleRightClick: MouseEventHandler<HTMLDivElement> = (e) => {
       e.preventDefault();
-      markCell(getCellInfo());
+      rightClickCell(getCellInfo());
     };
 
     return (
