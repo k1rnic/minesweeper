@@ -3,12 +3,12 @@ export interface ICell {
   col: number;
   state: CellStates;
   value: CellValues;
+  revealed?: boolean;
   neighborBombs: number;
 }
 
 export enum CellStates {
-  Hidden,
-  Revealed,
+  Default,
   Flagged,
   Unknown,
   Detonated,

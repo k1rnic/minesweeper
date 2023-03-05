@@ -1,6 +1,5 @@
-import { CellStates, CellValues, ICell } from '../model';
+import { CellValues, ICell } from '../model';
 
-export const isRevealed = (cell: ICell | null) =>
-  cell?.state === CellStates.Revealed;
+export const isRevealed = (cell: ICell | null) => cell?.revealed;
 
 export const isBomb = (cell: ICell | null) => cell?.value === CellValues.Bomb;

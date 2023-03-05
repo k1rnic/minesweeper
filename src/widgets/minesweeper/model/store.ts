@@ -15,25 +15,21 @@ sample({
   target: timerModel.start,
 });
 
-sample({
+const hiddenCellClick = sample({
   clock: boardModel.clickCell,
   source: gameModel.$gameState,
-  filter: (gameStatus, { state }) =>
-    gameStatus === gameModel.GameStates.Start &&
-    state === boardModel.CellStates.Hidden,
+  filter: (gameStatus, { revealed }) =>
+    gameStatus === gameModel.GameStates.Start && !revealed,
   fn: (_, cell) => cell,
-  target: boardModel.revealCell,
 });
 
-const gameOver = sample({
-  clock: boardModel.clickCell,
-  filter: ({ value }) => value === boardModel.CellValues.Bomb,
-});
-
-gameOver.watch(() => {
-  boardModel.revealAllBombs();
-  gameModel.changeGameState(gameModel.GameStates.Lose);
-  timerModel.stop();
+hiddenCellClick.watch((cell) => {
+  boardModel.revealCell(cell);
+  if (cell.value === boardModel.CellValues.Bomb) {
+    boardModel.revealAllBombs();
+    gameModel.changeGameState(gameModel.GameStates.Lose);
+    timerModel.stop();
+  }
 });
 
 sample({

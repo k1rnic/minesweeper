@@ -6,15 +6,14 @@ export const revealCellsDeep = (
   cell: ICell | null,
   depth = 0,
 ) => {
-  if (cell?.state === CellStates.Hidden) {
-    board[cell.row][cell.col].state = CellStates.Revealed;
+  if (cell && !cell.revealed) {
+    board[cell.row][cell.col].revealed = true;
 
     if (cell.value === CellValues.Empty && cell.neighborBombs === 0) {
       getNeighbors(board, cell)
         .filter(
           (neighbor) =>
-            neighbor?.state === CellStates.Hidden &&
-            neighbor?.value === CellValues.Empty,
+            !neighbor?.revealed && neighbor?.value === CellValues.Empty,
         )
         .map((neighbor) => revealCellsDeep(board, neighbor, depth + 1));
     }
@@ -25,15 +24,15 @@ export const revealBombs = (board: IBoard) => {
   return board.map((line) =>
     line.map((cell) => {
       if (cell.value === CellValues.Bomb) {
-        return { ...cell, state: CellStates.Revealed };
-        // if (cell.state === CellStates.Revealed) {
-        //   return { ...cell, state: CellStates.Detonated };
-        // }
+        if (cell.revealed) {
+          return { ...cell, state: CellStates.Detonated };
+        }
 
-        // switch (cell.state) {
-        //   case CellStates.Flagged:
-        //     return { ...cell, state: CellStates.Defused };
-        // }
+        if (cell.state === CellStates.Flagged) {
+          return { ...cell, state: CellStates.Defused, revealed: true };
+        }
+
+        return { ...cell, revealed: true };
       }
       return cell;
     }),

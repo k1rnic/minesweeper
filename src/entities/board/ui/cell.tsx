@@ -20,38 +20,51 @@ export const Cell = memo(
     col,
     value,
     state,
+    revealed,
     neighborBombs,
     onClick,
     ...spriteProps
   }: CellProps) => {
-    const spriteLine = state === CellStates.Revealed && neighborBombs ? 4 : 3;
+    const spriteLine = revealed && neighborBombs ? 4 : 3;
 
     const spritePosition = useMemo(() => {
-      switch (state) {
-        case CellStates.Revealed: {
-          if (neighborBombs) {
-            return neighborBombs;
-          }
-          return value === CellValues.Empty
-            ? CellSpritePositions.Empty
-            : CellSpritePositions.Bomb;
+      if (revealed) {
+        if (neighborBombs) {
+          return neighborBombs;
         }
-        case CellStates.Hidden:
-          return CellSpritePositions.Hidden;
+
+        switch (state) {
+          case CellStates.Defused:
+            return CellSpritePositions.Defused;
+          case CellStates.Detonated:
+            return CellSpritePositions.Detonated;
+        }
+
+        return value === CellValues.Empty
+          ? CellSpritePositions.Empty
+          : CellSpritePositions.Bomb;
+      }
+
+      switch (state) {
         case CellStates.Flagged:
           return CellSpritePositions.Flagged;
         case CellStates.Unknown:
           return CellSpritePositions.Unknown;
-        case CellStates.Detonated:
-          return CellSpritePositions.Detonated;
-        case CellStates.Defused:
-          return CellSpritePositions.Defused;
       }
-    }, [state, value, neighborBombs]);
+
+      return CellSpritePositions.Hidden;
+    }, [state, value, neighborBombs, revealed]);
 
     const sprite = useSprite(spriteLine, spritePosition);
 
-    const getCellInfo = () => ({ row, col, value, state, neighborBombs });
+    const getCellInfo = () => ({
+      row,
+      col,
+      value,
+      state,
+      neighborBombs,
+      revealed,
+    });
 
     const handleClick: MouseEventHandler<HTMLDivElement> = (e) => {
       clickCell(getCellInfo());
