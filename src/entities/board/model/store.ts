@@ -1,23 +1,48 @@
-import { createEvent, createStore } from 'effector';
+import { createEvent, createStore, sample } from 'effector';
 import {
   generateBoard,
   generateBombs,
   revealBombs,
   revealCellsDeep,
+  toggleFlaggedState,
 } from '../lib';
 import { BOARD_SIZE, BOMB_COUNT } from './constants';
-import { CellValues, IBoard, ICell } from './types';
+import { CellStates, CellValues, IBoard, ICell } from './types';
 
 const generate = createEvent();
 const clickCell = createEvent<ICell>();
 const pressCell = createEvent<ICell>();
 const revealCell = createEvent<ICell>();
-const placeBombs = createEvent();
+
 const revealAllBombs = createEvent();
 
 const $touched = createStore(false)
   .on(revealCell, () => true)
   .reset(generate);
+
+const markCell = createEvent<ICell>();
+const incrementBombCount = createEvent();
+const decrementBombCount = createEvent();
+
+const $bombsCount = createStore(BOMB_COUNT)
+  .on(incrementBombCount, (count) => Math.min(BOMB_COUNT, count + 1))
+  .on(decrementBombCount, (count) => Math.max(0, count - 1))
+  .reset(generate);
+
+sample({
+  clock: markCell,
+  source: $bombsCount,
+  filter: (count, cell) =>
+    cell.state !== CellStates.Default && count < BOMB_COUNT,
+  target: incrementBombCount,
+});
+
+sample({
+  clock: markCell,
+  source: $bombsCount,
+  filter: (count, cell) => cell.state === CellStates.Default && count > 0,
+  target: decrementBombCount,
+});
 
 const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
   lines: [],
@@ -38,10 +63,19 @@ const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
   .on(revealAllBombs, (state) => ({
     ...state,
     lines: revealBombs(state.lines),
-  }));
+  }))
+  .on(markCell, (state, cell) => {
+    if (cell.revealed) {
+      return state;
+    }
+
+    const lines = structuredClone(state.lines);
+    lines[cell.row][cell.col].state = toggleFlaggedState(cell.state);
+
+    return { ...state, lines };
+  });
 
 const $lines = $board.map(({ lines }) => lines);
-const $bombsCount = createStore(BOMB_COUNT).reset(placeBombs);
 
 const $isAllRevealed = $board.map(({ lines }) =>
   lines.every((row) =>
@@ -61,7 +95,7 @@ export {
   generate,
   clickCell,
   pressCell,
-  placeBombs,
   revealCell,
   revealAllBombs,
+  markCell,
 };

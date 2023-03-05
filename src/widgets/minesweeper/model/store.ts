@@ -24,8 +24,10 @@ sample({
 const hiddenCellClick = sample({
   clock: boardModel.clickCell,
   source: gameModel.$gameState,
-  filter: (gameStatus, { revealed }) =>
-    gameStatus === gameModel.GameStates.Start && !revealed,
+  filter: (gameStatus, { revealed, state }) =>
+    gameStatus === gameModel.GameStates.Start &&
+    state === boardModel.CellStates.Default &&
+    !revealed,
   fn: (_, cell) => cell,
 });
 
@@ -37,8 +39,6 @@ hiddenCellClick.watch((cell) => {
     timerModel.stop();
   }
 });
-
-boardModel.$isAllRevealed.watch(console.log);
 
 sample({
   clock: boardModel.$isAllRevealed,

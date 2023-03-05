@@ -6,7 +6,7 @@ export const revealCellsDeep = (
   cell: ICell | null,
   depth = 0,
 ) => {
-  if (cell && !cell.revealed) {
+  if (cell && !cell.revealed && cell.state === CellStates.Default) {
     board[cell.row][cell.col].revealed = true;
 
     if (cell.value === CellValues.Empty && cell.neighborBombs === 0) {

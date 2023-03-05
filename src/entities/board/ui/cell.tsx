@@ -1,6 +1,13 @@
 import { Sprite, useSprite } from '@/shared/ui/sprite';
 import { memo, MouseEventHandler, useMemo } from 'react';
-import { CellStates, CellValues, clickCell, ICell, pressCell } from '../model';
+import {
+  CellStates,
+  CellValues,
+  clickCell,
+  ICell,
+  markCell,
+  pressCell,
+} from '../model';
 
 enum CellSpritePositions {
   Hidden = 1,
@@ -75,12 +82,18 @@ export const Cell = memo(
       pressCell(getCellInfo());
     };
 
+    const handleRightClick: MouseEventHandler<HTMLDivElement> = (e) => {
+      e.preventDefault();
+      markCell(getCellInfo());
+    };
+
     return (
       <Sprite
         {...sprite}
         {...spriteProps}
         onClick={handleClick}
         onKeyDown={handlePress}
+        onContextMenu={handleRightClick}
       />
     );
   },
