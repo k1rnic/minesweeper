@@ -6,7 +6,7 @@ import {
   revealCellsDeep,
 } from '../lib';
 import { BOARD_SIZE, BOMB_COUNT } from './constants';
-import { IBoard, ICell } from './types';
+import { CellStates, CellValues, IBoard, ICell } from './types';
 
 const generate = createEvent();
 const clickCell = createEvent<ICell>();
@@ -43,10 +43,20 @@ const $board = createStore<{ bombPlaced: boolean; lines: IBoard }>({
 const $lines = $board.map(({ lines }) => lines);
 const $bombsCount = createStore(BOMB_COUNT).reset(placeBombs);
 
+const $isAllCellsOpened = $board.map(({ lines }) =>
+  lines.every((row) =>
+    row.every(
+      (cell) =>
+        cell.state !== CellStates.Hidden && cell.value !== CellValues.Bomb,
+    ),
+  ),
+);
+
 export {
   $lines,
   $touched,
   $bombsCount,
+  $isAllCellsOpened,
   generate,
   clickCell,
   pressCell,

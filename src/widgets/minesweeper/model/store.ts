@@ -35,3 +35,9 @@ gameOver.watch(() => {
   gameModel.changeGameState(gameModel.GameStates.Lose);
   timerModel.stop();
 });
+
+sample({
+  clock: boardModel.$isAllCellsOpened,
+  fn: () => gameModel.GameStates.Win,
+  target: gameModel.changeGameState,
+});

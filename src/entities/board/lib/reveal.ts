@@ -23,10 +23,19 @@ export const revealCellsDeep = (
 
 export const revealBombs = (board: IBoard) => {
   return board.map((line) =>
-    line.map((cell) =>
-      cell.value === CellValues.Bomb
-        ? { ...cell, state: CellStates.Revealed }
-        : cell,
-    ),
+    line.map((cell) => {
+      if (cell.value === CellValues.Bomb) {
+        return { ...cell, state: CellStates.Revealed };
+        // if (cell.state === CellStates.Revealed) {
+        //   return { ...cell, state: CellStates.Detonated };
+        // }
+
+        // switch (cell.state) {
+        //   case CellStates.Flagged:
+        //     return { ...cell, state: CellStates.Defused };
+        // }
+      }
+      return cell;
+    }),
   );
 };
