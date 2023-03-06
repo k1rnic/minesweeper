@@ -14,6 +14,7 @@ const Container = styled(Box)`
   padding: 8px;
   gap: 8px;
   background-color: #c0c0c0;
+  transform: scale(2);
   ${shadows.outer}
 `;
 
