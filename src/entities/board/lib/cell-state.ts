@@ -11,5 +11,8 @@ export const isEmpty = (cell: ICell | null) => cell?.value === CellValues.Empty;
 
 export const isBomb = (cell: ICell | null) => cell?.value === CellValues.Bomb;
 
+export const isFlagged = (cell: ICell | null) =>
+  cell?.state === CellStates.Flagged;
+
 export const isRevealedOrBomb = (cell: ICell | null) =>
   isRevealed(cell) ? isEmpty(cell) : isBomb(cell);

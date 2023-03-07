@@ -1,6 +1,7 @@
+import { isEmpty } from '@/entities/board/lib';
 import { Sprite, useSprite } from '@/shared/ui/sprite';
 import { memo, MouseEventHandler, useMemo } from 'react';
-import { CellStates, CellValues, ICell } from '../model';
+import { CellStates, ICell } from '../model';
 
 enum CellSpritePositions {
   Hidden = 1,
@@ -19,39 +20,28 @@ export type CellProps = ICell & {
 };
 
 export const Cell = memo(
-  ({
-    row,
-    col,
-    value,
-    state,
-    revealed,
-    neighborBombs,
-    onCellClick,
-    onCellRightClick,
-    onCellPress,
-    ...spriteProps
-  }: CellProps) => {
-    const spriteLine = revealed && neighborBombs ? 4 : 3;
+  ({ onCellClick, onCellRightClick, onCellPress, ...cell }: CellProps) => {
+    const spriteLine = cell.revealed && cell.neighborBombs ? 4 : 3;
 
     const spritePosition = useMemo(() => {
-      if (revealed) {
-        if (neighborBombs) {
-          return neighborBombs;
+      if (cell.revealed) {
+        if (cell.neighborBombs) {
+          return cell.neighborBombs;
         }
 
-        switch (state) {
+        switch (cell.state) {
           case CellStates.Defused:
             return CellSpritePositions.Defused;
           case CellStates.Detonated:
             return CellSpritePositions.Detonated;
         }
 
-        return value === CellValues.Empty
+        return isEmpty(cell)
           ? CellSpritePositions.Empty
           : CellSpritePositions.Bomb;
       }
 
-      switch (state) {
+      switch (cell.state) {
         case CellStates.Flagged:
           return CellSpritePositions.Flagged;
         case CellStates.Unknown:
@@ -59,35 +49,25 @@ export const Cell = memo(
       }
 
       return CellSpritePositions.Hidden;
-    }, [state, value, neighborBombs, revealed]);
+    }, [cell]);
 
     const sprite = useSprite(spriteLine, spritePosition);
 
-    const getCellInfo = () => ({
-      row,
-      col,
-      value,
-      state,
-      neighborBombs,
-      revealed,
-    });
-
     const handleClick: MouseEventHandler<HTMLDivElement> = (e) => {
-      onCellClick(getCellInfo());
+      onCellClick(cell);
     };
 
     const handleRightClick: MouseEventHandler<HTMLDivElement> = (e) => {
       e.preventDefault();
-      onCellRightClick(getCellInfo());
+      onCellRightClick(cell);
     };
 
     return (
       <Sprite
         {...sprite}
-        {...spriteProps}
         onClick={handleClick}
-        onMouseDown={() => onCellPress(getCellInfo(), true)}
-        onMouseUp={() => onCellPress(getCellInfo(), false)}
+        onMouseDown={() => onCellPress(cell, true)}
+        onMouseUp={() => onCellPress(cell, false)}
         onContextMenu={handleRightClick}
       />
     );

@@ -31,7 +31,7 @@ export const generateBombs = (
 
   boardWithBombs.forEach((line) =>
     line.forEach((cell) => {
-      if (cell.value === CellValues.Empty) {
+      if (isEmpty(cell)) {
         cell.neighborBombs = getNeighborBombs(boardWithBombs, cell).length;
       }
     }),

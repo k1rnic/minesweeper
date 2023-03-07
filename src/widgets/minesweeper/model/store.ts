@@ -3,6 +3,7 @@ import {
   canToggleFlaggedState,
   isBomb,
   isDefault,
+  isFlagged,
   isHidden,
 } from '@/entities/board';
 import { gameModel, isPlaying } from '@/entities/game';
@@ -69,8 +70,8 @@ export const createMinesweeperStore = () => {
   split({
     source: toggleCellFlag,
     match: {
-      increment: (cell) => cell.state === boardModel.CellStates.Flagged,
-      decrement: (cell) => cell.state === boardModel.CellStates.Default,
+      increment: isFlagged,
+      decrement: isDefault,
     },
     cases: {
       increment: boardStore.incrementBombCount,
