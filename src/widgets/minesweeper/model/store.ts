@@ -1,10 +1,14 @@
 import {
   boardModel,
   canToggleFlaggedState,
+  getNeighborBombs,
+  getNeighborFlagged,
+  getNeighborHidden,
   isBomb,
   isDefault,
   isFlagged,
   isHidden,
+  isRevealed,
 } from '@/entities/board';
 import { gameModel, isPlaying } from '@/entities/game';
 import { timerModel } from '@/entities/timer';
@@ -38,18 +42,49 @@ export const createMinesweeperStore = () => {
     target: gameStore.win,
   });
 
-  const clickHiddenCell = sample({
-    clock: boardStore.clickCell.filter({
-      fn: (cell) => isDefault(cell) && isHidden(cell),
-    }),
+  const clickCell = sample({
+    clock: boardStore.clickCell,
     source: gameStore.$gameState,
     filter: isPlaying,
     fn: (_, cell) => cell,
+  });
+
+  sample({
+    clock: clickCell,
+    source: boardStore.$board,
+    filter: (board, cell) => {
+      if (isRevealed(cell)) {
+        const neighborBombsCount = getNeighborBombs(board, cell).length;
+        const neighborFlaggedCount = getNeighborFlagged(board, cell).length;
+        const neighborHiddenCount = getNeighborHidden(board, cell).length;
+
+        if (
+          neighborHiddenCount &&
+          neighborBombsCount &&
+          neighborBombsCount === neighborFlaggedCount
+        ) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+    fn: (board, cell) =>
+      getNeighborHidden(board, cell)
+        .filter((cell) => !(isFlagged(cell) && isBomb(cell)))
+        .forEach((neighbor) => {
+          boardStore.revealCell(neighbor!);
+        }),
+  });
+
+  sample({
+    clock: clickCell,
+    filter: (cell) => isDefault(cell) && isHidden(cell),
     target: boardStore.revealCell,
   });
 
   sample({
-    source: clickHiddenCell,
+    source: boardStore.revealCell,
     filter: isBomb,
     target: [gameStore.lose, boardStore.revealAllBombs],
   });

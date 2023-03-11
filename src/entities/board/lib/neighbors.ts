@@ -1,5 +1,5 @@
 import { IBoard, ICell } from '../model/types';
-import { isBomb, isRevealed } from './cell-state';
+import { isBomb, isFlagged, isHidden, isRevealed } from './cell-state';
 
 type Position = [row: number, col: number];
 
@@ -23,11 +23,17 @@ const getNeighborCell = (
 const getNeighbors = (board: IBoard, cell: ICell) =>
   NEIGHBOR_POS.map((pos) => getNeighborCell(board, cell, pos));
 
+const getNeighborHidden = (board: IBoard, cell: ICell) =>
+  getNeighbors(board, cell).filter(isHidden);
+
 const getNeighborRevealed = (board: IBoard, cell: ICell) =>
   getNeighbors(board, cell).filter(isRevealed);
 
 const getNeighborBombs = (board: IBoard, cell: ICell) =>
   getNeighbors(board, cell).filter(isBomb);
+
+const getNeighborFlagged = (board: IBoard, cell: ICell) =>
+  getNeighbors(board, cell).filter((cell) => isFlagged(cell));
 
 const isNeighborTo = (board: IBoard, source: ICell, target: ICell) =>
   getNeighbors(board, source).some(
@@ -35,4 +41,11 @@ const isNeighborTo = (board: IBoard, source: ICell, target: ICell) =>
       maybeNeighbor?.col === target.col && maybeNeighbor?.row === target.row,
   );
 
-export { getNeighbors, getNeighborRevealed, getNeighborBombs, isNeighborTo };
+export {
+  getNeighbors,
+  getNeighborHidden,
+  getNeighborRevealed,
+  getNeighborBombs,
+  getNeighborFlagged,
+  isNeighborTo,
+};
