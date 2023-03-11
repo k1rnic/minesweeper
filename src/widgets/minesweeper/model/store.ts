@@ -50,7 +50,7 @@ export const createMinesweeperStore = () => {
     fn: (_, cell) => cell,
   });
 
-  sample({
+  const revealNeighbors = sample({
     clock: clickCell,
     source: boardStore.$board,
     filter: (board, cell) => {
@@ -70,13 +70,16 @@ export const createMinesweeperStore = () => {
 
       return false;
     },
-    fn: (board, cell) =>
-      getNeighborHidden(board, cell)
-        .filter((cell) => !query.and(isFlagged, isBomb)(cell))
-        .forEach((neighbor) => {
-          boardStore.revealCell(neighbor!);
-        }),
+    fn: (board, cell) => [board, cell] as const,
   });
+
+  revealNeighbors.watch(([board, cell]) =>
+    getNeighborHidden(board, cell)
+      .filter((cell) => !query.and(isFlagged, isBomb)(cell))
+      .forEach((neighbor) => {
+        boardStore.revealCell(neighbor!);
+      }),
+  );
 
   sample({
     clock: clickCell,
