@@ -1,3 +1,4 @@
+import query from '@/shared/lib/query';
 import { CellStates, IBoard, ICell } from '../model/types';
 import {
   isBomb,
@@ -10,7 +11,7 @@ import {
 import { getNeighbors } from './neighbors';
 
 export const revealCellsDeep = (board: IBoard, cell: ICell | null) => {
-  if (cell && isHidden(cell) && isDefault(cell)) {
+  if (cell && query.and(isHidden, isDefault)(cell)) {
     board[cell.row][cell.col].revealed = true;
 
     if (isEmpty(cell) && cell.neighborBombs === 0) {

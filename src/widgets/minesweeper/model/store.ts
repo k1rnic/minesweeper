@@ -12,6 +12,7 @@ import {
 } from '@/entities/board';
 import { gameModel, isPlaying } from '@/entities/game';
 import { timerModel } from '@/entities/timer';
+import query from '@/shared/lib/query';
 
 import { sample, split } from 'effector';
 
@@ -71,7 +72,7 @@ export const createMinesweeperStore = () => {
     },
     fn: (board, cell) =>
       getNeighborHidden(board, cell)
-        .filter((cell) => !(isFlagged(cell) && isBomb(cell)))
+        .filter((cell) => !query.and(isFlagged, isBomb)(cell))
         .forEach((neighbor) => {
           boardStore.revealCell(neighbor!);
         }),
@@ -79,7 +80,7 @@ export const createMinesweeperStore = () => {
 
   sample({
     clock: clickCell,
-    filter: (cell) => isDefault(cell) && isHidden(cell),
+    filter: query.and(isDefault, isHidden),
     target: boardStore.revealCell,
   });
 

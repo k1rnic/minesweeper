@@ -1,3 +1,4 @@
+import query from '@/shared/lib/query';
 import { BOARD_SIZE } from '../model/constants';
 import { CellValues, IBoard, ICell } from '../model/types';
 import { isEmpty, isHidden } from './cell-state';
@@ -23,7 +24,7 @@ export const generateBombs = (
 
     const noNeighborRevealed = !isNeighborTo(board, initialCell, cell);
 
-    if (isHidden(cell) && isEmpty(cell) && noNeighborRevealed && noInitial) {
+    if (query.and(isHidden, isEmpty)(cell) && noNeighborRevealed && noInitial) {
       cell.value = CellValues.Bomb;
       bombPlaced++;
     }
